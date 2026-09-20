@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Survive the Night</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:#f5f7ff;background:radial-gradient(circle at 50% 5%,#40567e,#18213a 35%,#070a12 100%);transition:background 1.5s}
+body.scary{background:radial-gradient(circle at 50% 5%,#171427,#08080f 40%,#000 100%)}
+.wrap{width:min(920px,94%);margin:auto;padding:25px 0 45px}
+.screen{background:#111a2eee;border:1px solid #485b7f;border-radius:26px;padding:30px;box-shadow:0 25px 80px #000b}
+.lobby{text-align:center;padding:48px 24px}
+.moon{font-size:78px;filter:drop-shadow(0 0 20px #fff7)}
+h1{font-size:47px;margin:8px 0}.sub{color:#aebbd4;font-size:18px;line-height:1.6}
+.modeGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:720px;margin:30px auto 15px}
+.mode{border:1px solid #4b6084;background:#202e49;color:#fff;border-radius:18px;padding:22px;text-align:left;cursor:pointer;transition:.18s}
+.mode:hover{transform:translateY(-3px);background:#2a3c5d}
+.mode.selected{border:2px solid #82cfff;box-shadow:0 0 24px #82cfff22}
+.mode h2{margin:0 0 8px;font-size:23px}.mode p{color:#b7c3da;line-height:1.45;margin:7px 0}
+.mode .tag{font-weight:900;font-size:13px}
+.calm .tag{color:#8fe0b1}.nightmare .tag{color:#ff788d}
+.btn{border:0;border-radius:14px;padding:16px 28px;background:linear-gradient(135deg,#5b91ff,#a05cff);color:#fff;font-weight:900;font-size:17px;cursor:pointer;margin-top:18px}
+.sound{background:#202d49;color:#fff;border:1px solid #53688f;border-radius:10px;padding:10px 14px;cursor:pointer;margin-top:12px}
+.hidden{display:none!important}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px}.title{font-size:27px;font-weight:900}.small{font-size:13px;color:#aebbd4;margin-top:3px}
+.restart{background:#202d49;color:#fff;border:1px solid #53688f;border-radius:10px;padding:10px 13px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 15px}
+.stat{background:#0a1121;border:1px solid #344563;border-radius:14px;padding:13px}.label{font-size:12px;color:#aebbd4}.value{font-size:25px;font-weight:900;margin-top:4px}
+.row{display:flex;justify-content:space-between;color:#aebbd4;font-weight:700;margin-bottom:8px}.progress{height:9px;background:#293750;border-radius:20px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#73d7ff,#9c72ff);transition:.5s}
+.timerbox{display:flex;justify-content:space-between;align-items:center;background:#0a1121;border:1px solid #344563;border-radius:14px;padding:12px 15px;margin:18px 0}.timer{font-size:29px;font-weight:900;color:#83e7ff}
+.danger{border-color:#e34d68!important;animation:pulse .45s infinite alternate}.danger .timer{color:#ff637e}@keyframes pulse{to{box-shadow:0 0 24px #e34d6866}}
+.noTimer{color:#8fe0b1;font-weight:900}
+.event{background:linear-gradient(135deg,#1c2945,#111a2d);border:1px solid #435777;border-radius:18px;padding:25px;min-height:130px;display:flex;align-items:center;font-size:21px;line-height:1.55;transition:.3s}
+.choices{display:grid;gap:11px;margin-top:15px}.choice{background:#243451;color:#fff;border:1px solid #4b6084;border-radius:13px;padding:16px;text-align:left;cursor:pointer;font-size:16px;transition:.15s}.choice:hover{background:#304464;transform:translateX(4px)}.choice:disabled{opacity:.4}
+.result{min-height:28px;margin-top:15px;padding:12px;border-radius:11px;font-weight:800}.good{background:#123a29;border:1px solid #319567;color:#a4f1c4}.bad{background:#421b25;border:1px solid #a9475b;color:#ffacba}
+.end{text-align:center;padding:55px 20px}.endIcon{font-size:75px}.final{background:#0a1121;border:1px solid #354667;border-radius:15px;padding:17px;line-height:2;font-size:18px;max-width:480px;margin:20px auto}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.shake{animation:shake .4s}
+@media(max-width:650px){.screen{padding:20px}.modeGrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.lobby{padding:38px 12px}h1{font-size:37px}.event{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="lobby" class="screen lobby">
+<div class="moon">🌙</div>
+<h1>Survive the Night</h1>
+<p class="sub">Choose how you want the night to feel.</p>
+
+<div class="modeGrid">
+<button class="mode calm selected" id="calmMode" type="button">
+<div class="tag">🌿 CALM NIGHT</div>
+<h2>Cozy & On Edge</h2>
+<p>A calmer story with strange little moments, peaceful choices, and mild suspense.</p>
+<p><b>✓ No timer</b><br><b>✓ No nightmare questions</b><br><b>✓ Relaxed pace</b></p>
+</button>
+
+<button class="mode nightmare" id="nightmareMode" type="button">
+<div class="tag">🩸 NIGHTMARE FUEL</div>
+<h2>Things Get Worse</h2>
+<p>Starts sweet, becomes unsettling, then turns into full nightmare territory.</p>
+<p><b>✓ 15-second timer</b><br><b>✓ Darker questions</b><br><b>✓ Major surprises</b></p>
+</button>
+</div>
+
+<div id="modeDescription" class="sub">🌿 Calm Night selected — take your time.</div>
+<button class="btn" id="startBtn">▶ START CALM NIGHT</button><br>
+<button class="sound" id="soundBtn">🔊 Music: ON</button>
+</section>
+
+<section id="game" class="screen hidden">
+<div class="top"><div><div class="title">🌙 Survive the Night</div><div class="small" id="modeLabel"></div></div><button class="restart" id="restart">↻ Restart</button></div>
+<div class="stats">
+<div class="stat"><div class="label">❤️ HEALTH</div><div class="value" id="health">100</div></div>
+<div class="stat"><div class="label">⚡ ENERGY</div><div class="value" id="energy">100</div></div>
+<div class="stat"><div class="label">🎒 ITEMS</div><div class="value" id="items">0</div></div>
+</div>
+<div class="row"><span>Round <span id="round">1</span> of 20</span><span id="mood">CALM</span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="timerbox" id="timerBox"><span id="timerLabel">⏱️ TIME LEFT</span><span class="timer" id="timerArea"><span id="timer">15</span>s</span></div>
+<div class="event" id="event"></div>
+<div class="choices" id="choices"></div>
+<div class="result" id="result"></div>
+</section>
+
+<section id="end" class="screen end hidden">
+<div class="endIcon" id="endIcon">🌅</div><h2 id="endTitle"></h2><p class="sub" id="endText"></p>
+<div class="final" id="final"></div><button class="btn" id="again">▶ PLAY AGAIN</button>
+</section>
+</div>
+
+<script>
+(()=>{"use strict";
+const calm=[
+{t:"You wake in a little cabin while rain taps softly on the roof. A warm blanket waits beside you.",c:[["Make tea",5,4,1],["Look outside",0,-2,0],["Go back to sleep",3,8,0]]},
+{t:"You find a basket with cookies, a flashlight, and a tiny handwritten map.",c:[["Take the cookies",4,4,1],["Study the map",0,-4,1],["Leave it alone",2,2,0]]},
+{t:"A friendly-looking deer watches you from the edge of the woods.",c:[["Wave to it",2,0,0],["Take a picture",0,-2,1],["Give it a little food",4,-3,0]]},
+{t:"You hear a soft knock. When you open the door, a package of blankets is sitting outside.",c:[["Bring them inside",5,0,1],["Look around first",0,-3,0],["Close the door",2,1,0]]},
+{t:"The clouds clear. Tiny glowing mushrooms make a path through the forest.",c:[["Follow the path",0,-7,1],["Stay near the cabin",3,0,0],["Sketch the mushrooms",1,-2,1]]},
+{t:"You discover an old music box playing a gentle melody.",c:[["Keep listening",2,0,1],["Close the box",3,1,0],["Wind it once",0,-3,1]]},
+{t:"The melody stops. For a moment, you think you hear someone humming along.",c:[["Hum back",0,-2,0],["Check outside",-2,-4,1],["Ignore it",2,0,0]]},
+{t:"The cabin lights flicker once. Then they return. Probably just the storm.",c:[["Check the fuse",-2,-4,1],["Light a candle",2,-2,1],["Relax",3,3,0]]},
+{t:"You find a second blanket on a chair. It is warm, even though nobody has used the chair.",c:[["Use it",3,2,0],["Put it away",1,0,0],["Check the chair",-2,-3,1]]},
+{t:"A note on the table says: “Goodnight. Don't forget to lock up.” The handwriting looks familiar.",c:[["Lock the door",4,-1,0],["Read the note again",0,-3,1],["Throw it away",1,0,0]]},
+{t:"You hear footsteps outside, but they stop when you stop moving.",c:[["Stay still",3,-4,0],["Look outside",-4,-5,0],["Turn on the porch light",1,-3,0]]},
+{t:"A shadow passes across the window. It looks like a branch moving in the wind.",c:[["Check the window",-2,-4,0],["Close the curtains",3,-2,0],["Ignore it",2,0,0]]},
+{t:"The forest is quiet now. Almost too quiet.",c:[["Make some tea",3,2,0],["Read a book",2,3,0],["Go for a short walk",-3,-8,1]]},
+{t:"Your flashlight briefly catches two reflective eyes in the trees. They blink and disappear.",c:[["Stay inside",4,-1,0],["Look again",-4,-7,0],["Call out hello",0,-5,0]]},
+{t:"The front porch creaks. You remember the wind is supposed to be completely calm tonight.",c:[["Check the porch",-3,-5,1],["Lock the door",4,-2,0],["Wait quietly",2,-4,0]]},
+{t:"You find an old photo album. Most pictures are ordinary. One picture is of this cabin from tonight.",c:[["Look closer",-2,-4,1],["Close the album",2,0,0],["Put it away",3,-1,0]]},
+{t:"A soft voice outside says your name. It sounds friendly, almost like someone you know.",c:[["Answer", -4,-5,0],["Stay quiet",4,-3,0],["Check from the window",-3,-6,1]]},
+{t:"The voice doesn't return. The woods are peaceful again.",c:[["Take a breath",4,4,0],["Keep watching",-2,-5,0],["Go to bed",5,5,0]]},
+{t:"Morning light begins to appear. You notice a small trail of footprints leading away from the cabin.",c:[["Follow them",-3,-7,1],["Stay put",4,2,0],["Pack your things",2,0,1]]},
+{t:"The sun rises over the trees. You made it through the night. Whatever was out there never came inside.",c:[["Leave the cabin",5,-5,1],["Have breakfast",6,4,0],["Take one last look",0,-3,1]]}
+];
+
+const nightmare=[
+{t:"You wake in a tiny cabin. Rain taps gently on the roof. A warm blanket is folded beside you.",c:[["Make tea",5,4,1],["Look outside",0,-2,0],["Go back to sleep",3,8,0]]},
+{t:"You find an old box of matches and a candle. The cabin feels strangely cozy.",c:[["Light the candle",3,-2,1],["Keep the matches",0,0,1],["Search the kitchen",2,-5,1]]},
+{t:"A handwritten note is on the table: “Don't worry. Someone is nearby.”",c:[["Laugh it off",2,0,0],["Look for the writer",-4,-5,1],["Lock the door",4,-2,0]]},
+{t:"You hear a soft knock. Just one. When you look through the window, nobody is there.",c:[["Open the door",-5,-5,0],["Stay quiet",3,-3,0],["Check the porch",0,-7,1]]},
+{t:"The rain stops. Tiny glowing mushrooms line a path through the woods.",c:[["Follow it",-5,-10,1],["Stay inside",4,0,0],["Take one",-2,-5,1]]},
+{t:"You find an old music box under a tree. It starts playing by itself when you touch it.",c:[["Keep it",-4,-4,1],["Leave it",2,0,0],["Wind it again",-8,-8,1]]},
+{t:"The music box plays the same three notes. You realize they match the rhythm of the knocking.",c:[["Smash it",-3,-5,0],["Listen",-2,-8,1],["Walk away",-2,-4,0]]},
+{t:"You return to the cabin. The front door is open. You KNOW you closed it.",c:[["Enter",-8,-8,0],["Circle around",2,-10,0],["Run into the woods",-5,-18,0]]},
+{t:"Inside, everything looks normal... except there is a second mug of warm tea on the table.",c:[["Drink it",-10,-5,1],["Leave it alone",2,-3,0],["Throw it away",-3,-5,0]]},
+{t:"A photograph on the wall shows the cabin. You are standing in the photo. You are wearing the clothes you have on right now.",c:[["Take it",-3,-7,1],["Turn it face-down",2,-4,0],["Leave",-5,-12,0]]},
+{t:"You hear your own voice whisper from upstairs: “Hey... it's me.”",c:[["Answer",-15,-8,0],["Stay downstairs",4,-5,0],["Go upstairs",-20,-12,1]]},
+{t:"The lights go out. Your flashlight flickers on. For one second, you see a person at the end of the hallway.",c:[["Chase them",-20,-15,0],["Close your eyes",3,-5,0],["Back away",5,-8,0]]},
+{t:"The flashlight returns. The hallway is empty. But wet footprints lead toward you.",c:[["Follow them",-10,-12,1],["Block the door",5,-7,0],["Hide",-2,-10,0]]},
+{t:"Your phone rings. The screen says: CALLING — YOU.",c:[["Answer",-25,-10,0],["Reject it",3,-5,0],["Turn it off",-2,-7,0]]},
+{t:"A message appears anyway: “You should not have come here.” Then: “It is already inside.”",c:[["Search",-15,-15,1],["Hide",4,-8,0],["Run outside",-8,-20,0]]},
+{t:"You hear breathing directly behind you. You turn around. Nothing. The breathing continues.",c:[["Freeze",2,-8,0],["Swing the flashlight",-12,-10,0],["Run",-10,-20,0]]},
+{t:"The cabin door slams shut. Every window is covered from the outside by something dark.",c:[["Break a window",-20,-12,1],["Try the door",-10,-10,0],["Wait",-3,-15,0]]},
+{t:"Your flashlight points at the wall. A shadow appears. You move the flashlight. The shadow does not move.",c:[["Look behind you",-25,-15,0],["Keep watching",-5,-8,0],["Close your eyes",3,-10,0]]},
+{t:"The shadow slowly raises its hand. Your own hand moves at the exact same time.",c:[["Pull away",-25,-20,0],["Do nothing",-5,-12,0],["Reach toward it",-30,-18,1]]},
+{t:"The sun begins to rise. You open the door. The forest is gone. There is only a long hallway... and at the far end, a cabin with the lights on.",c:[["Walk toward it",-15,-20,0],["Run the other way",-10,-25,0],["Stay still",5,-5,0]]}
+];
+
+let mode="calm",state={round:0,health:100,energy:100,items:0},timer=null,locked=true,music=true,audio=null,osc=null,gain=null;
+function $(id){return document.getElementById(id)} function clamp(n){return Math.max(0,Math.min(100,n))}
+function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+function update(){ $("health").textContent=state.health;$("energy").textContent=state.energy;$("items").textContent=state.items}
+function beep(freq=500,d=.08){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const a=new A(),o=a.createOscillator(),g=a.createGain();o.frequency.value=freq;g.gain.value=.035;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.stop(a.currentTime+d)}catch(e){}}
+function startMusic(){if(!music)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;audio=audio||new A();if(audio.state==="suspended")audio.resume();if(osc)return;osc=audio.createOscillator();gain=audio.createGain();osc.type="sine";osc.frequency.value=mode==="calm"?190:180;gain.gain.value=mode==="calm"?.012:.018;osc.connect(gain);gain.connect(audio.destination);osc.start()}catch(e){}}
+function musicLevel(){if(!gain)return;const target=mode==="calm"?.01:(state.round<6?.018:state.round<12?.011:state.round<17?.006:.002);gain.gain.linearRampToValueAtTime(target,audio.currentTime+1);if(osc)osc.frequency.setTargetAtTime(mode==="calm"?175:(state.round<6?180:state.round<12?115:state.round<17?75:48),audio.currentTime,.5)}
+function selectMode(m){
+mode=m;$("calmMode").classList.toggle("selected",m==="calm");$("nightmareMode").classList.toggle("selected",m==="nightmare");
+if(m==="calm"){$("modeDescription").textContent="🌿 Calm Night selected — take your time. No timer, no nightmare fuel.";$("startBtn").textContent="▶ START CALM NIGHT"}else{$("modeDescription").textContent="🩸 Nightmare Fuel selected — 15 seconds per choice. The final rounds get intense.";$("startBtn").textContent="▶ ENTER NIGHTMARE FUEL"}
+}
+function render(){
+stopTimer();locked=false;const list=mode==="calm"?calm:nightmare,e=list[state.round];$("round").textContent=state.round+1;$("bar").style.width=state.round/20*100+"%";update();
+$("mood").textContent=mode==="calm"?"CALM":state.round<6?"PEACEFUL":state.round<11?"UNEASY":state.round<16?"DANGEROUS":"NIGHTMARE";
+$("modeLabel").textContent=mode==="calm"?"🌿 Calm Night — no timer":"🩸 Nightmare Fuel — the night is changing";
+$("event").textContent=e.t;$("result").textContent="";$("result").className="result";$("event").className="event";
+const box=$("choices");box.innerHTML="";e.c.forEach((c,i)=>{const b=document.createElement("button");b.className="choice";b.type="button";b.textContent=(i+1)+". "+c[0];b.onclick=()=>choose(c);box.appendChild(b)});
+if(mode==="calm"){$("timerBox").innerHTML='<span>🌿 TAKE YOUR TIME</span><span class="noTimer">NO TIMER</span>';musicLevel();return}
+$("timerBox").innerHTML='<span>⏱️ TIME LEFT</span><span class="timer"><span id="timer">15</span>s</span>';let s=15;timer=setInterval(()=>{if(locked)return;s--;$("timer").textContent=s;if(s<=5)$("timerBox").className="timerbox danger";else $("timerBox").className="timerbox";if(s<=0){stopTimer();timeUp()}},1000);musicLevel()
+}
+function choose(c){
+if(locked)return;locked=true;stopTimer();state.health=clamp(state.health+c[1]);state.energy=clamp(state.energy+c[2]);state.items=Math.max(0,state.items+c[3]);update();
+const score=c[1]+c[2]+c[3]*4;$("result").textContent=score>=0?"✓ You made it through.":"⚠ That choice cost you.";$("result").className="result "+(score>=0?"good":"bad");beep(score>=0?700:160,.1);
+if(mode==="nightmare"&&state.round>=16&&Math.random()<.6){$("event").classList.add("shake");setTimeout(()=>$("event").classList.remove("shake"),500)}
+if(state.health<=0||state.energy<=0){setTimeout(()=>finish(true),700);return}state.round++;if(state.round>=20){setTimeout(()=>finish(false),800);return}setTimeout(render,mode==="calm"?550:700)
+}
+function timeUp(){if(locked)return;locked=true;state.health=clamp(state.health-45);update();$("choices").querySelectorAll("button").forEach(b=>b.disabled=true);$("result").textContent="⏰ TIME'S UP! You lost 45 health.";$("result").className="result bad";beep(110,.25);if(state.health<=0){setTimeout(()=>finish(true),900);return}state.round++;if(state.round>=20){setTimeout(()=>finish(false),900);return}setTimeout(render,900)}
+function finish(dead){stopTimer();locked=true;$("game").classList.add("hidden");$("end").classList.remove("hidden");if(dead){$("endIcon").textContent="💀";$("endTitle").textContent="YOU DIDN'T MAKE IT";$("endText").textContent=mode==="calm"?"The night caught up with you. Try again.":"The nightmare won this time."}else{$("endIcon").textContent="🌅";$("endTitle").textContent=mode==="calm"?"YOU MADE IT THROUGH":"THE NIGHT IS OVER";$("endText").textContent=mode==="calm"?"You made it through a strange but peaceful night.":"You survived all 20 rounds... but something about the final hallway feels wrong."}$("final").innerHTML="❤️ Health: <b>"+state.health+"</b><br>⚡ Energy: <b>"+state.energy+"</b><br>🎒 Items: <b>"+state.items+"</b>"} 
+function start(){document.body.classList.toggle("scary",mode==="nightmare");$("lobby").classList.add("hidden");$("end").classList.add("hidden");$("game").classList.remove("hidden");state={round:0,health:100,energy:100,items:0};startMusic();render();beep(650,.12)}
+$("calmMode").onclick=()=>selectMode("calm");$("nightmareMode").onclick=()=>selectMode("nightmare");$("startBtn").onclick=start;$("restart").onclick=start;$("again").onclick=()=>{$("game").classList.add("hidden");$("end").classList.add("hidden");$("lobby").classList.remove("hidden");selectMode(mode)};$("soundBtn").onclick=()=>{music=!music;$("soundBtn").textContent=music?"🔊 Music: ON":"🔇 Music: OFF";if(music)startMusic();else if(gain)gain.gain.value=0};
+selectMode("calm");
+})();
+</script>
+</body>
+</html>
